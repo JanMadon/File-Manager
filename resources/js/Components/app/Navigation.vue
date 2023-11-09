@@ -3,14 +3,15 @@
         <div class="h-[80px] px-3 flex items-content gap-3">
             <Link href="/">
             <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
-            </Link>
             LaraStorage
+
+            </Link>
         </div>
         <div class="px-3">
             <CreateNewDropdown />
             <div class="py-3">
-                <NavLink href="/">My Files</NavLink>
-                <NavLink href="/" :active="true">Shered with me</NavLink>
+                <NavLink :href = "route('myFiles')" :active="$page.url === '/my-files'">My Files</NavLink>
+                <NavLink href="/" >Shered with me</NavLink>
                 <NavLink href="/">Shered by me</NavLink>
                 <NavLink href="/">Trash</NavLink>
             </div>
@@ -23,6 +24,7 @@ import { Link } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import CreateNewDropdown from '@/Components/app/CreateNewDropdown.vue';
 import NavLink from '@/Components/NavLink.vue';
+
 
 
 

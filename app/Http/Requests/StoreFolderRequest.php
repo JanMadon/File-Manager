@@ -20,12 +20,14 @@ class StoreFolderRequest extends ParentIdBasedRequest
         return array_merge(parent::rules(),
             [
                 'name' => [
-                        'required',
-                        Rule::unique(File::class, 'name')
-                            ->where('created_at', Auth::id())
-                            ->where('parent_id'), $this->parent_id
-                            ->whereNull('deleted_at')
-                        ]
+                    'required',
+                    Rule::unique(File::class, 'name')
+                        ->where(function ($query) {
+                            $query->where('created_at', Auth::id())
+                                ->where('parent_id', $this->parent_id)
+                                ->whereNull('deleted_at');
+                        }),
+                ],
             ] 
         );
     }

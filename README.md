@@ -7,6 +7,12 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Problemy
+można tworzyć fodery o tej samej nazwie w danym folderze:  {
+    nie działa walodacja w pliku StoreFolderRequest nie wiem jak zaciągnąć zmienną parent_id (za każdym razem jest null),
+    prawdopodobie powinna ona być wysyłania w formulażu wraz ze zmmeną name
+}
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

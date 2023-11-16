@@ -8,6 +8,7 @@
                 <InputLabel for="folderName" value="Folder Name" class="sr-only"/>
 
                 <TextInput  type="text" 
+                            ref="folderNameInput"
                             id="folderName" 
                             v-model="form.name" 
                             class="mt-1 block w-full"
@@ -42,13 +43,30 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref, nextTick } from 'vue';
 
 const form = useForm({
-    name: ''
+    name: '',
+    //parent_id: 2
 })
 
 const folderNameInput = ref(null);
 
+// function createForder() {
+
+// form.parent_id = page.props.folder.id
+// const name = form.name;
+// form.post(route('folder.create'), {
+//     preserveScroll: true,
+//     onSuccess: () => {
+//         closeModal()
+//         // Show success notification
+//         //showSuccessNotification(`The folder "${name}" was created`)
+//         form.reset();
+//     },
+//     onError: () => folderNameInput.value.focus()
+// })
+// }
 
 function createForder() {
+    //form.parent_id = page.props.folder.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {

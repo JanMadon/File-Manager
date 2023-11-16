@@ -12,10 +12,20 @@ use PhpParser\Node\Expr\New_;
 
 class FileController extends Controller
 {
-    public function myFiles()
+    public function myFiles(string $folder = null)
     {
+// dd($folder);
 
-        $folder = $this->getRoot();
+        if($folder){
+            $folder = File::query()->where('created_by', Auth::id())
+                    ->where('path', $folder)
+                    ->firstOrFail();
+        }
+
+        if(!$folder){
+            $folder = $this->getRoot();
+        }
+
         $files = File::query()
             ->where('parent_id', $folder->id)
             ->where('created_by', Auth::id())
@@ -23,10 +33,13 @@ class FileController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         
-            $files = FileResource::collection($files);
+        $files = FileResource::collection($files);
 
+        $ancestors =FileResource::collection([...$folder->ancestors, $folder]) ;
+       
+        $folder = new FileResource($folder);
 
-        return Inertia::render('MyFiles', compact('files'));
+        return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
         //return Inertia::render('MyFiles', ['files' => $files]);
     }
 

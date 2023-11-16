@@ -37,16 +37,17 @@ import modal from '@/Components/Modal.vue'
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue'; 
 import InputError from '@/Components/InputError.vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { ref, nextTick } from 'vue';
 
 const form = useForm({
     name: '',
-    //parent_id: 2
+    parent_id: null,
 })
 
+const page = usePage();
 const folderNameInput = ref(null);
 
 // function createForder() {
@@ -66,7 +67,7 @@ const folderNameInput = ref(null);
 // }
 
 function createForder() {
-    //form.parent_id = page.props.folder.id
+    form.parent_id = page.props.folder.id
     form.post(route('folder.create'), {
         preserveScroll: true,
         onSuccess: () => {

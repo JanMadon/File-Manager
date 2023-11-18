@@ -31,8 +31,15 @@ import Navigation from '@/Components/app/Navigation.vue';
 import SearchForm from '@/Components/app/SearchFrom.vue';
 import UserSettingsDropdown from '@/Components/app/UserSettingsDropdown.vue';
 import { FILE_UPLOAD_STARTED, emitter } from '@/event-bus';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 
+//Uses
+const page = usePage();
+const fileUploadForm = useForm({
+    files: [],
+    parent_id: null
+})
 
 //Refs 
 const dragOver = ref(false);
@@ -59,7 +66,13 @@ function onDragLeave() {
 }
 
 function uploadFiles(files) {
-    console.log(files)
+    console.log(page.props)
+    fileUploadForm.parent_id = page.props.folder.id;
+    fileUploadForm.files = files;
+
+    fileUploadForm.post(route('file.store'));
+
+     
 }
 
 

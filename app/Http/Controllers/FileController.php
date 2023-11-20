@@ -20,7 +20,7 @@ class FileController extends Controller
         if ($folder) {
             $folder = File::query()->where('created_by', Auth::id())
                 ->where('path', $folder)
-                ->firstOrFail();
+                ->firstOrFail(); // zapamietaj
         }
 
         if (!$folder) {
@@ -37,7 +37,7 @@ class FileController extends Controller
         $files = FileResource::collection($files);
 
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
-
+        
         $folder = new FileResource($folder);
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));

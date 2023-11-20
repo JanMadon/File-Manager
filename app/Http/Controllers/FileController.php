@@ -16,15 +16,14 @@ class FileController extends Controller
 {
     public function myFiles(string $folder = null)
     {
-// dd($folder);
 
-        if($folder){
+        if ($folder) {
             $folder = File::query()->where('created_by', Auth::id())
-                    ->where('path', $folder)
-                    ->firstOrFail();
+                ->where('path', $folder)
+                ->firstOrFail();
         }
 
-        if(!$folder){
+        if (!$folder) {
             $folder = $this->getRoot();
         }
 
@@ -34,11 +33,11 @@ class FileController extends Controller
             ->orderBy('id_folder', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-        
+
         $files = FileResource::collection($files);
 
-        $ancestors =FileResource::collection([...$folder->ancestors, $folder]) ;
-       
+        $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
+
         $folder = new FileResource($folder);
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
@@ -49,7 +48,7 @@ class FileController extends Controller
     {
         $data = $request->validated();
         $parent = $request->parent;
-        
+
 
         if (!$parent) {
             $parent = $this->getRoot();
@@ -57,21 +56,67 @@ class FileController extends Controller
 
         // dd($data);
 
-        $file = New File();
-        $file -> id_folder = 1;
+        $file = new File();
+        $file->id_folder = 1;
         $file->name = $data['name'];
 
         $parent->appendNode($file);
     }
 
-    public function store(StoreFileRequest $request) {
+    public function store(StoreFileRequest $request)
+    {
         $data = $request->validated();
+        $parent = $request->parent;
+        $user = $request->user();
+        $fileTree = $request->file_tree;
+        if (!$parent) {
+            $parent = $this->getRoot();
+        }
 
-        dd($data);
+        if (!empty($fileTree)) {
+            $this->saveFileTree($fileTree, $parent, $user);
+        } else {
+            foreach ($data['files'] as $file) {
+
+                /** @var Illuminate\Http\UploadedFile $file*/
+
+                $this->saveFile($file, $user, $parent);
+            }
+        }
     }
 
     private function getRoot()
     {
         return File::query()->whereIsRoot()->where('created_by', Auth::id())->firstOrFail();
+    }
+
+    public function saveFileTree($fileTree, $parent, $user)
+    {
+        foreach ($fileTree as $name => $file) {
+            if (is_array($file)) {
+                $folder = new File();
+                $folder->id_folder = 1;
+                $folder->name = $name;
+
+                $parent->appendNode($folder);
+                $this->saveFileTree($file, $folder, $user);
+            } else {
+                $this->saveFile($file, $user, $parent);
+            }
+        }
+    }
+
+    private function saveFile($file, $user, $parent): void
+    {
+        $path = $file->store('/files' . $user->id);
+
+        $model = new File();
+        $model->storage_path = $path;
+        $model->id_folder = false;
+        $model->name = $file->getClientOriginalName();
+        $model->mime = $file->getMimeType();
+        $model->size = $file->getSize();
+
+        $parent->appendNode($model);
     }
 }

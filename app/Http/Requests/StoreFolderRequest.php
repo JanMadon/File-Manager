@@ -18,7 +18,6 @@ class StoreFolderRequest extends ParentIdBasedRequest
     public function rules(): array
     {
 
-        // dd($this->parent_id);
         return array_merge(parent::rules(),
             [
                 'name' => [

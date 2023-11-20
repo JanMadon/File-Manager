@@ -17,12 +17,13 @@ class ParentIdBasedRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //dd($this->input('parent_id'));
+        
         $this->parent = File::query()->where('id', $this->input('parent_id'))->first();
+        
         if ($this->parent && !$this->parent->isOwnedBy(Auth::id())) {
             return false;
         }
-        // dd($this->parent);
+
         return true;
     }
 

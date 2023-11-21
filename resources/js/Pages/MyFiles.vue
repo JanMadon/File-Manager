@@ -19,6 +19,10 @@
 
                 </li>
             </ol>
+
+            <div>
+                <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"/>
+            </div>
         </nav>
 
         <div class="flex-1 overflow-auto">
@@ -84,9 +88,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { router, Link } from '@inertiajs/vue3';
 import FileIcon from '@/Components/app/FileIcon.vue'
-import {ref, onMounted, onUpdated} from 'vue'
+import {ref, onMounted, onUpdated, computed} from 'vue'
 import {httpGet} from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
+import DeleteFilesButton from '@/Components/app/DeleteFilesButton.vue';
 
 
 const props = defineProps({
@@ -103,6 +108,7 @@ const allFiles = ref({
     next: props.files.links.next
 })
 
+const selectedIds = computed(() => Object.entries(selected.value).filter(a => a[1]).map(a => a[0] ))
 
 
 function openFolder(file) {
@@ -126,6 +132,11 @@ function loadMore(){
             allFiles.value.data = [...allFiles.value.data, ...res.data],
             allFiles.value.next = res.links.next
         })
+}
+
+function onDelete(){
+    allSelected.value = false
+    selected.value = {}
 }
 
 function onSelectAllChange() {

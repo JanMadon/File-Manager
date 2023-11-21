@@ -37,12 +37,12 @@ class FileController extends Controller
 
         $files = FileResource::collection($files);
 
-        if($request->wantsJson()) {
+        if ($request->wantsJson()) {
             return $files;
         }
 
         $ancestors = FileResource::collection([...$folder->ancestors, $folder]);
-        
+
         $folder = new FileResource($folder);
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
@@ -109,6 +109,27 @@ class FileController extends Controller
                 $this->saveFile($file, $user, $parent);
             }
         }
+    }
+
+    public function destroy(Request $request)
+    {
+        $data = $request->validated();
+        $parent = $request->parent;
+
+        if ($data['all']) {
+            $children = $parent->children;
+
+            foreach ($children as $child) {
+                $child->delete();
+            }
+        } else {
+            foreach ($data['ids'] as $id) {
+                $file = File::find($id);
+                $file->delete();
+            }
+        }
+
+        return to_route('myFiles', ['folder'=>$parent->path]);
     }
 
     private function saveFile($file, $user, $parent): void

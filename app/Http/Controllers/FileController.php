@@ -118,7 +118,6 @@ class FileController extends Controller
     {
         $data = $request->validated();
         $parent = $request->parent;
-        dd($data);
         if ($data['all']) {
             $children = $parent->children;
 

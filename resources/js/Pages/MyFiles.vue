@@ -169,7 +169,6 @@ function onSelectChcekboxChange(file) {
 }
 
 onUpdated(() => {
-    console.log('qqq')
     allFiles.value = {
         data: props.files.data,
         next: props.files.links.next

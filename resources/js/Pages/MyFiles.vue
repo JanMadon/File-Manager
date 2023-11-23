@@ -21,6 +21,7 @@
             </ol>
 
             <div>
+                <DownloadFilesButton :all="allSelected" :ids="selectedIds" class="mr-2"/>
                 <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"/>
             </div>
         </nav>
@@ -92,6 +93,7 @@ import {ref, onMounted, onUpdated, computed} from 'vue'
 import {httpGet} from '@/Helper/http-helper';
 import Checkbox from '@/Components/Checkbox.vue';
 import DeleteFilesButton from '@/Components/app/DeleteFilesButton.vue';
+import DownloadFilesButton from '@/Components/app/DownloadFilesButton.vue';
 
 
 const props = defineProps({
@@ -120,8 +122,6 @@ function openFolder(file) {
 }
 
 function loadMore(){
-    console.log('load more')
-    console.log(allFiles.value.next)
 
     if(allFiles.value.next == null){
         return

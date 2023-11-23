@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 
-class DestroyFileRequest extends ParentIdBasedRequest
+//class DestroyFileRequest extends ParentIdBasedRequest
+class FileActionRequest extends ParentIdBasedRequest
 {
     
 
@@ -18,7 +19,7 @@ class DestroyFileRequest extends ParentIdBasedRequest
      */
     public function rules(): array
     {
-        $user = $this->getUser();
+        //$user = $this->getUser();
         return array_merge(parent::rules(), [
             'all' => 'nullable|bool',
             'ids.*' => Rule::exists('files', 'id')->where(function($query) {

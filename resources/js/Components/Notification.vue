@@ -43,7 +43,6 @@ onMounted(()=>{
         show.value = true;
         type.value = t;
         message.value = msg;
-        console.log(type.value);
         if(timeout) clearTimeout(timeout);
         timeout = setTimeout(()=>{
             close();

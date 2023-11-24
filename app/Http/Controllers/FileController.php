@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FileActionRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
+use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use Illuminate\Auth\Events\Validated;
@@ -50,6 +51,23 @@ class FileController extends Controller
 
         return Inertia::render('MyFiles', compact('files', 'folder', 'ancestors'));
         //return Inertia::render('MyFiles', ['files' => $files]);
+    }
+
+    public function trash(Request $request)
+    {
+        $files = File::onlyTrashed()
+            ->where('created_by', Auth::id())
+            ->orderBy('id_folder', 'desc')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(10);
+
+        $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return Inertia::render('Trash', compact('files'));
     }
 
     public function createFolser(StoreFolderRequest $request)
@@ -122,13 +140,13 @@ class FileController extends Controller
             $children = $parent->children;
 
             foreach ($children as $child) {
-                $child->delete();
+                $child->moveToTrash();
             }
         } else {
             foreach ($data['ids'] as $id) {
                 $file = File::find($id);
                 if ($file) {
-                    $file->delete();
+                    $file->moveToTrash();
                 }
             }
         }
@@ -221,12 +239,50 @@ class FileController extends Controller
 
     private function addFilesToZip($zip, $files, $ancestors = '')
     {
-        foreach($files as $file) {
-            if($file->id_folder){
+        foreach ($files as $file) {
+            if ($file->id_folder) {
                 $this->addFilesToZip($zip, $file->children, $ancestors . $file->name . '/');
             } else {
                 $zip->addFile(Storage::path($file->storage_path), $ancestors . $file->name);
             }
         }
+    }
+
+    public function restore(TrashFileRequest $request)
+    {
+        $data = $request->validated();
+        if($data['all']) {
+            $children = File::onlyTrashed()->get();
+            foreach($children as $child) {
+                $child->resore();
+            }
+        } else {
+            $ids = $data['ids'] ?? [];
+            $children = File::onlyTrashed()->whereIn('id', $ids)->get();
+            foreach ($children as $child) {
+                $child->restore();
+            }
+        }
+
+        return to_route('trash');
+    }
+
+    public function deleteForever(TrashFileRequest $request)
+    {
+        $data = $request->validated();
+        if($data['all']) {
+            $children = File::onlyTrashed()->get();
+            foreach($children as $child) {
+                $child->deleteForever();
+            }
+        } else {
+            $ids = $data['ids'] ?? [];
+            $children = File::onlyTrashed()->whereIn('id', $ids)->get();
+            foreach ($children as $child) {
+                $child->deleteForever();
+            }
+        }
+
+        return to_route('trash');
     }
 }

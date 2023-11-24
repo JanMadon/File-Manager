@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasCreatorAndUpdater;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +53,7 @@ class File extends Model
 
         $power = $this->size > 0 ? floor(log($this->size, 1024)) : 0;
 
-        return number_format($this->size / pow(1024, $power), 2, '.', ',').' '.         $units[$power];
+        return number_format($this->size / pow(1024, $power), 2, '.', ',') . ' ' .         $units[$power];
     }
 
     protected static function boot()
@@ -66,10 +67,34 @@ class File extends Model
             $model->path = (!$model->parent->isRoot() ? $model->parent->path . '/' : '') . Str::slug($model->name);
         });
 
-        static::deleted(function(File $model) {
-            if(!$model->id_folder) {
+        static::deleted(function (File $model) {
+            if (!$model->id_folder) {
                 Storage::delete($model->storage_path);
             }
         });
+    }
+
+    public function moveToTrash()
+    {
+
+        $this->deleted_at = Carbon::now();
+        return $this->save();
+    }
+
+    public function deleteForever()
+    {
+        $this->deleteFilesFromStorage([$this]);
+        $this->forceDelete();
+    }
+
+    public function deleteFilesFromStorage($files)
+    {
+        foreach($files as $file) {
+            if($file->id_folder) {
+                $this->deleteFilesFromStorage($file->children);
+            } else {
+                Storage::delete($file->storage_path);
+            }
+        }
     }
 }

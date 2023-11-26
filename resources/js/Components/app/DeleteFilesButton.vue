@@ -71,8 +71,6 @@ function onDeleteConfirm() {
         }
     })
 
-    console.log('delete', props.deleteAll, props.deleteIds)
-
 }
 
 </script>

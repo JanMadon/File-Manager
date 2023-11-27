@@ -25,6 +25,13 @@ class FileActionRequest extends ParentIdBasedRequest
             'ids.*' => Rule::exists('files', 'id')->where(function($query) {
                 $query->where('created_by', Auth::id());
             })
-        ]);
+        ]);        
+    }
+
+    public function messages()
+    {
+        return [
+            'error' => 'huj dupa i kamieni kupa'
+        ];
     }
 }

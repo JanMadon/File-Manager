@@ -24,7 +24,7 @@ class FileActionRequest extends ParentIdBasedRequest
             'all' => 'nullable|bool',
             'ids.*' => Rule::exists('files', 'id')->where(function($query) {
                 $query->where('created_by', Auth::id());
-            })
+                })
         ]);        
     }
 

@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddToFavoritesRequest;
 use App\Http\Requests\FileActionRequest;
+use App\Http\Requests\ShareFileRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreFolderRequest;
 use App\Http\Requests\TrashFileRequest;
 use App\Http\Resources\FileResource;
+use App\Mail\ShareFilesMail;
 use App\Models\File;
 use App\Models\FileShare;
 use App\Models\StarredFile;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use PhpParser\Node\Expr\New_;
@@ -38,7 +43,7 @@ class FileController extends Controller
         }
 
         $favorites = (int) $request->get('favorites');
-        
+
 
         $files = File::query()
             ->select('files.*')
@@ -48,9 +53,9 @@ class FileController extends Controller
             ->orderBy('id_folder', 'desc')
             ->orderBy('files.created_at', 'desc')
             ->orderBy('files.id', 'desc');
-            
 
-        if($favorites === 1) {
+
+        if ($favorites === 1) {
             $files->join('starred_files', 'starred_files.file_id', 'files.id')
                 ->where('starred_files.user_id', Auth::id());
         }
@@ -306,30 +311,85 @@ class FileController extends Controller
 
     public function addToFavorites(AddToFavoritesRequest $request)
     {
-        
+
         $data = $request->validated();
 
         $id = $data['id'];
         $file = File::find($id);
         $user_id = Auth::id();
 
-       $starredFile = StarredFile::query()
+        $starredFile = StarredFile::query()
             ->where('file_id', $file->id)
             ->where('user_id', $user_id)
             ->first();
 
 
-        if($starredFile){
+        if ($starredFile) {
             $starredFile->delete();
-            
         } else {
             StarredFile::create([
-                    'file_id' => $file->id,
-                    'user_id' => $user_id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
+                'file_id' => $file->id,
+                'user_id' => $user_id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]);
         }
+        return redirect()->back();
+    }
+
+    public function share(ShareFileRequest $request)
+    {
+        $data = $request->validated();
+        $parent = $request->parent;
+
+        $all = $data['all'] ?? false;
+        $email = $data['email'] ?? false;
+        $ids = $data['ids'] ?? [];
+
+        if (!$all && empty($ids)) {
+            return [
+                'message' => 'Please select files do share'
+            ];
+        }
+
+        $user = User::query()->where('email', $email)->first();
+
+        if(!$user){
+            return redirect()->back();
+        }
+
+
+        if($all){
+            $files = $parent->children;
+        } else {
+            $files = File::find($ids);
+        }
+
+        $data = [];
+        $ids = Arr::pluck($files, 'id');
+        $existingFileIds = FileShare::query()
+                        ->whereIn('file_id', $ids)
+                        ->where('user_id', $user->id)
+                        ->get()
+                        ->keyBy('file_id');
+
+        foreach($files as $file) {
+            if($existingFileIds->has($file->id)) {
+                continue;
+            }
+            $data[] =  [
+                'file_id' => $file->id,
+                'user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ];
+        }
+
+  // send email address
+        Mail::to($user)->send(new ShareFilesMail($user, Auth::user(), $files));
+
+        FileShare::insert($data);
+
         return redirect()->back();
     }
 }

@@ -40,7 +40,10 @@ Route::controller(FileController::class)
         Route::delete('/file/delete-forever', 'deleteForever')->name('file.deleteForever');
         Route::post('/file/add-to-favorites', 'addToFavorites')->name('file.addToFavourites');
         Route::post('/file/share', 'share')->name('file.share');
+        Route::get('/shared-with-me', 'sharedWithMe')->name('file.sharedWithMe');
+        Route::get('/shared-by-me', 'sharedByMe')->name('file.sharedByMe');
         Route::get('/file/download', 'download')->name('file.download');
+        Route::get('/file/download-shared-with-me', 'downloadSharedWithMe')->name('file.downloadSharedWithMe');
 
     });
 

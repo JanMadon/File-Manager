@@ -357,6 +357,7 @@ class FileController extends Controller
             ->where('user_id', $user->id)
             ->get()
             ->keyBy('file_id');
+            dd($ids);
 
         foreach ($files as $file) {
             if ($existingFileIds->has($file->id)) {
@@ -403,7 +404,7 @@ class FileController extends Controller
     }
 
     public function downloadSharedWithMe(FileActionRequest $request)
-    {
+    {  
         $data = $request->validated();
         
         $all = $data['all'] ?? false;
@@ -419,6 +420,35 @@ class FileController extends Controller
 
         if ($all) {
             $files = File::getSharedWithMe()->get();
+            $url = $this->createZip($files);
+            $filename = $zipName . '.zip';
+        } else {
+            [$url, $filename] = $this->getDownloadUrl($ids, $zipName);
+        }
+
+        return [
+            'url' => $url,
+            'filename' => $filename
+        ];
+    }
+
+    public function downloadSharedByMe(FileActionRequest $request)
+    {
+        $data = $request->validated();
+        
+        $all = $data['all'] ?? false;
+        $ids = $data['ids'] ?? [];
+
+        if (!$all && empty($ids)) {
+            return [
+                'message' => 'Please select files do download'
+            ];
+        }
+
+        $zipName = 'shared_by_me';
+
+        if ($all) {
+            $files = File::getSharedByMe()->get();
             $url = $this->createZip($files);
             $filename = $zipName . '.zip';
         } else {

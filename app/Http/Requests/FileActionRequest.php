@@ -20,7 +20,6 @@ class FileActionRequest extends ParentIdBasedRequest
      */
     public function rules(): array
     {
-
         //$user = $this->getUser();
         return array_merge(parent::rules(), [
             'all' => 'nullable|bool',
@@ -31,10 +30,10 @@ class FileActionRequest extends ParentIdBasedRequest
                     $file = File::query()
                         ->leftJoin('file_shares', 'file_shares.file_id', 'files.id')
                         ->where('files.id', $id)
-                        ->where(function ($query) {
-                            $query->where('files.created_by', Auth::id())
+                       ->where(function ($query) {
+                           $query->where('files.created_by', Auth::id())
                                 ->orWhere('file_shares.user_id', Auth::id());
-                        })
+                       })
                         ->first();
 
                     if (!$file) {

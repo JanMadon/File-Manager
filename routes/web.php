@@ -44,6 +44,7 @@ Route::controller(FileController::class)
         Route::get('/shared-by-me', 'sharedByMe')->name('file.sharedByMe');
         Route::get('/file/download', 'download')->name('file.download');
         Route::get('/file/download-shared-with-me', 'downloadSharedWithMe')->name('file.downloadSharedWithMe');
+        Route::get('/file/download-shared-By-me', 'downloadSharedByMe')->name('file.downloadSharedByMe');
 
     });
 

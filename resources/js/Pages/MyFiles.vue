@@ -30,7 +30,6 @@
                 <DeleteFilesButton :delete-all="allSelected" :delete-ids="selectedIds" @delete="onDelete"/>
             </div>
         </nav>
-
         <div class="flex-1 overflow-auto">
             <table class="min-w-full">
                 <thead class="bg-gray-100 border-b">
@@ -43,6 +42,9 @@
                         </th>
                         <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                             Name
+                        </th>
+                        <th v-if="search" class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
+                            path
                         </th>
                         <th class="text-sm font-medium text-gray-900 px-6 py-4 text-left">
                             Owner
@@ -79,6 +81,9 @@
                             <FileIcon :file="file" />
                             {{ file.name }}
                         </td>
+                        <td v-if="search" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 ">
+                            {{ file.path }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 ">
                             {{ file.owner }}
                         </td>
@@ -113,11 +118,11 @@ import Checkbox from '@/Components/Checkbox.vue';
 import DeleteFilesButton from '@/Components/app/DeleteFilesButton.vue';
 import DownloadFilesButton from '@/Components/app/DownloadFilesButton.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import  {showSuccesNotification} from "@/event-bus";
+import  {ON_SEARCH, emitter, showSuccesNotification} from "@/event-bus";
 import ShareFilesButton from '@/Components/app/ShareFilesButton.vue';
 
-const page = usePage();
 
+const page = usePage();
 
 const props = defineProps({
     files: Object,
@@ -125,6 +130,7 @@ const props = defineProps({
     ancestors: Object
 })
 
+// ref:
 const allSelected = ref(false);
 const onlyFavorites = ref(false);
 const selected = ref({})
@@ -133,10 +139,15 @@ const allFiles = ref({
     data: props.files.data,
     next: props.files.links.next
 })
+let search = ref('');
+
 
 const selectedIds = computed(() => Object.entries(selected.value).filter(a => a[1]).map(a => a[0] ))
 let params = null
 
+
+
+//methods:
 function openFolder(file) {
     if (!file.id_folder) {
         return;
@@ -229,6 +240,12 @@ onUpdated(() => {
 onMounted(() => {
     params = new URLSearchParams(window.location.search)
     onlyFavorites.value = params.get('favorites') == 1
+    search.value = params.get('search') // raczej tak bym to zrobił i śledził search za pomocą computed
+    // emitter.on(ON_SEARCH, (value)=>{
+    //     search = value
+    // })
+
+    console.log(search.value)
 
     const observer = new IntersectionObserver((entries) => entries.forEach(entry => entry.isIntersecting && loadMore()),
         {

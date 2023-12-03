@@ -25,12 +25,14 @@ use Inertia\Inertia;
 use PhpParser\Node\Expr\New_;
 use Illuminate\Support\Str;
 
+use function Laravel\Prompts\search;
+
 class FileController extends Controller
 {
     public function myFiles(Request $request, string $folder = null)
     {
-        // echo(phpinfo());
-        // exit;
+        $search = $request->get('search');
+
         if ($folder) {
             $folder = File::query()
                 ->where('created_by', Auth::id())
@@ -45,22 +47,29 @@ class FileController extends Controller
         $favorites = (int) $request->get('favorites');
 
 
-        $files = File::query()
+        $query = File::query()
             ->select('files.*')
             ->with('starred')
-            ->where('parent_id', $folder->id)
+            // ->where('parent_id', $folder->id)
+            ->where('parent_id', '!=', null)
             ->where('created_by', Auth::id())
             ->orderBy('id_folder', 'desc')
             ->orderBy('files.created_at', 'desc')
             ->orderBy('files.id', 'desc');
 
+        if($search) {
+            $query->where('name', 'like', "%$search%");
+        } else {
+            $query->where('parent_id', $folder->id);
+        }
+
 
         if ($favorites === 1) {
-            $files->join('starred_files', 'starred_files.file_id', 'files.id')
+            $query->join('starred_files', 'starred_files.file_id', 'files.id')
                 ->where('starred_files.user_id', Auth::id());
         }
 
-        $files = $files->paginate(10);
+        $files = $query->paginate(10);
 
         $files = FileResource::collection($files);
 
@@ -76,15 +85,63 @@ class FileController extends Controller
         //return Inertia::render('MyFiles', ['files' => $files]);
     }
 
+    public function sharedWithMe(Request $request)
+    {
+        $search = $request->get('search');
+
+        $query = File::getSharedWithMe();
+
+        if($search){
+            $query->where('name', 'like', "%$search%");
+        } 
+
+        $files = $query->paginate(10);
+        $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return Inertia::render('SharedWithMe', compact('files'));
+    }
+
+
+    public function sharedByMe(Request $request)
+    {
+        $search = $request->get('search');
+
+        $query = File::getSharedByMe();
+
+        if($search){
+            $query->where('name', 'like', "%$search%");
+        } 
+
+        $files = $query->paginate(10);
+
+        $files = FileResource::collection($files);
+
+        if ($request->wantsJson()) {
+            return $files;
+        }
+
+        return Inertia::render('SharedByMe', compact('files'));
+    }
+
     public function trash(Request $request)
     {
-        $files = File::onlyTrashed()
+        $search = $request->get('search');
+        
+        $query = File::onlyTrashed()
             ->where('created_by', Auth::id())
             ->orderBy('id_folder', 'desc')
             ->orderBy('deleted_at', 'desc')
-            ->orderBy('files.id', 'desc')
-            ->paginate(10);
+            ->orderBy('files.id', 'desc');
+        
+        if($search) {
+            $query->where('name', 'like', "%$search%");
+        }
 
+        $files = $query->paginate(10);
         $files = FileResource::collection($files);
 
         if ($request->wantsJson()) {
@@ -357,7 +414,6 @@ class FileController extends Controller
             ->where('user_id', $user->id)
             ->get()
             ->keyBy('file_id');
-            dd($ids);
 
         foreach ($files as $file) {
             if ($existingFileIds->has($file->id)) {
@@ -375,32 +431,6 @@ class FileController extends Controller
         Mail::to($user)->send(new ShareFilesMail($user, Auth::user(), $files));
 
         return redirect()->back();
-    }
-
-    public function sharedWithMe(Request $request)
-    {
-        $files = File::getSharedWithMe()->paginate(10);
-        $files = FileResource::collection($files);
-
-        if ($request->wantsJson()) {
-            return $files;
-        }
-
-        return Inertia::render('SharedWithMe', compact('files'));
-    }
-
-
-    public function sharedByMe(Request $request)
-    {
-        $files = File::getSharedByMe()->paginate(10);
-
-        $files = FileResource::collection($files);
-
-        if ($request->wantsJson()) {
-            return $files;
-        }
-
-        return Inertia::render('SharedByMe', compact('files'));
     }
 
     public function downloadSharedWithMe(FileActionRequest $request)

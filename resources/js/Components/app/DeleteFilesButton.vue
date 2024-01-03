@@ -1,6 +1,6 @@
 <template>
-    <button @click="onDeleteClick()">Delete
-    
+    <button @click="onDeleteClick()">
+        Delete
     </button>
     
     <ConfirmationDialog :show="showDeleteDialog" message="Are you sure you want to delete selected files?" @cancel="onDeleteCancel" @confirm="onDeleteConfirm">

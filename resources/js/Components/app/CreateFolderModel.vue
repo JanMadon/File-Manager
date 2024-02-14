@@ -1,7 +1,7 @@
 <template>
     <modal :show="modelValue" @show="onShow" max-width="sm">
         <div class="p-6">
-            <h2 class="text-lg" font-mediom text-gray-900>
+            <h2 class="text-lg font-mediom text-gray-900">
                 Create New Folder
             </h2>
             <div class="mt-6">

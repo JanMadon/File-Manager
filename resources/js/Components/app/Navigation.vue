@@ -1,10 +1,9 @@
 <template>
-    <nav class="min-w-[200px]">
-        <div class="h-[80px] px-3 flex items-content gap-3">
-            <Link href="/">
-            <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
+    <nav class="min-w-[200px] ">
+        <div class="h-[80px] px-3 flex items-content gap-3 ">
+            <Link href="/" class="flex justify-center items-center w-full m-1 font-bold rounded bg-slate-800 text-white">
+            <ApplicationLogo class="block h-9 w-auto fill-current" />
             LaraStorage
-
             </Link>
         </div>
         <div class="px-3">

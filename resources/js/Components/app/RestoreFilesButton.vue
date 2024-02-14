@@ -1,7 +1,10 @@
 <template>
-    <button @click="onClick()">Restore
-    
-    </button>
+     <SecondaryButton @click="onClick">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+        </svg>
+        Restore
+    </SecondaryButton>
     
     <ConfirmationDialog :show="showConfirmationDialog" message="Are you sure you want to restore selected files?" @cancel="onCancel" @confirm="onConfirm">
 
@@ -14,6 +17,7 @@ import { ref } from 'vue';
 import ConfirmationDialog from '../ConfirmationDialog.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { showErrorDialog, showSuccesNotification } from '@/event-bus';
+import SecondaryButton from '../SecondaryButton.vue';
 
 const page = usePage();
 const form = useForm({

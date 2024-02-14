@@ -2,7 +2,7 @@
     <AuthenticatedLayout>
         <nav class="flex items-center justify-end p-1 bm-3">
             <div>
-                <DeleteForeverButton :all-selected="allSelected" :selected-ids="selectedIds" @delete="resetForm"/>
+                <DeleteForeverButton :all-selected="allSelected" :selected-ids="selectedIds" @delete="resetForm" />
                <RestoreFilesButton :all-selected="allSelected" :selected-ids="selectedIds" @restore="resetForm"/>
             </div>
         </nav>

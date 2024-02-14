@@ -20,7 +20,7 @@
 <script setup>
 import { onMounted } from 'vue';
 import { ref } from 'vue';
-import { SHOW_NOTIFICATION , emitter } from '@/event-bus';
+import { SHOW_NOTIFICATION , emitter} from '@/event-bus' ;
 
 
 

@@ -2,10 +2,10 @@
     <Menu as="div" class="relative inline-block text-left">
         <div>
             <MenuButton
-                class="flex w-full justify-center rounded-md bg-black/20 px-4 py-2 text-sm font-medium text-white hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                class="flex w-full justify-center rounded-md px-4 py-2 text-sm font-medium bg-white border hover:bg-gray-300">
                 {{ $page.props.auth.user.name }}
 
-                <ChevronDownIcon class="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100" aria-hidden="true" />
+                <ChevronDownIcon class="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
             </MenuButton>
         </div>
 

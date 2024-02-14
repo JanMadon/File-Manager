@@ -16,6 +16,6 @@ export function showSuccesNotification(message){
 }
 
 export function showErrorNotification(message){
-    emitter.emit(SHOW_NOTIFICATION, {type: 'error', message});
+    emitter.emit(SHOW_NOTIFICATION, {type: 'error', message}) ;
     
 }

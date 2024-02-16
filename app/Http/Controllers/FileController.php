@@ -35,7 +35,7 @@ class FileController extends Controller
             $folder = File::query()
                 ->where('created_by', Auth::id())
                 ->where('path', $folder)
-                ->firstOrFail(); 
+                ->firstOrFail();
         }
 
         if (!$folder) {
@@ -238,7 +238,7 @@ class FileController extends Controller
         $zipName = $parent->name;
 
         if (!$all && empty($ids)) {
-            return [ 'message' => 'Please select files do download' ];
+            return ['message' => 'Please select files do download'];
         }
 
         if ($all) {
@@ -281,13 +281,14 @@ class FileController extends Controller
             Storage::disk('public')->makeDirectory(dirname($publicPath));
         }
 
+        // @ts-nocheck
         $zipFile = Storage::disk('public')->path($publicPath);
         $zip = new \ZipArchive();
 
         if ($zip->open($zipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) == true) {
             $this->addFilesToZip($zip, $files);
         }
-        
+
         $zip->close();
 
         return asset(Storage::disk('local')->url($zipPath));
@@ -486,6 +487,4 @@ class FileController extends Controller
             'filename' => $filename
         ];
     }
-
-    
 }
